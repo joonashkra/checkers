@@ -9,7 +9,10 @@ namespace assignment3
     class Board
     {
         private readonly char[,] board = new char[8, 8];
-        private readonly char[] cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        public char[,] BoardArray
+        {
+            get { return board; }
+        }
 
         public void InitBoard()
         {
@@ -17,7 +20,7 @@ namespace assignment3
 
             for (int i = 0; i < 8; i++)
             {
-                Console.Write("{0} |", i + 1);
+                PrintRowLabels(i);
 
                 for (int j = 0; j < 8; j++)
                 {
@@ -38,11 +41,8 @@ namespace assignment3
             }
         }
 
-        public void UpdateBoard(Player player, string startPosition, string endPosition)
+        public void UpdateBoard(Player player, int[] start, int[] end)
         {
-            int[] start = ParsePosition(startPosition);
-            int[] end = ParsePosition(endPosition);
-
             board[start[0], start[1]] = '#';
 
             if (player.PlayerNum == 1) board[end[0], end[1]] = 'X';
@@ -61,19 +61,12 @@ namespace assignment3
             }
         }
 
-        private int[] ParsePosition(string position)
-        {
-            int row = Convert.ToInt32(position[..1]) - 1;
-            int col = Array.IndexOf(cols, position[1]);
-            return [row, col];
-        }
-
         private void PrintColumnLabels()
         {
             Console.Write("   ");
-            for (int i = 0; i < 8; i++)
+            for (char c = 'A'; c <= 'H'; c++)
             {
-                Console.Write(" {0}", cols[i]);
+                Console.Write(" {0}", c);
             }
             Console.WriteLine("\n   -----------------");
         }

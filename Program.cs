@@ -36,11 +36,23 @@ namespace assignment3
 
                 if (startPosition == null || endPosition == null) return;
 
-                Player.Move(board, player, startPosition, endPosition);
+                int[] start = ParsePosition(startPosition);
+                int[] end = ParsePosition(endPosition);
+
+                if (Player.Move(board, player, start, end) == -1) i++;
+
                 Console.WriteLine();
 
                 i++;
             }
+        }
+
+        static int[] ParsePosition(string position)
+        {
+            char[] cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            int row = Convert.ToInt32(position[..1]) - 1;
+            int col = Array.IndexOf(cols, position[1]);
+            return [row, col];
         }
     }
 }
