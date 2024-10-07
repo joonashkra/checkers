@@ -26,13 +26,13 @@ namespace assignment3
                 {
                     board[i, j] = '#';
 
-                    if(i < 3)
-                    {
-                        if ((i + j) % 2 == 1) board[i, j] = 'O';
-                    }
-                    else if(i>4)
+                    if (i > 4)
                     {
                         if ((i + j) % 2 == 1) board[i, j] = 'X';
+                    }
+                    else if (i < 3)
+                    {
+                        if ((i + j) % 2 == 1) board[i, j] = 'O';
                     }
 
                     Console.Write(" {0}", board[i, j]);
@@ -41,12 +41,22 @@ namespace assignment3
             }
         }
 
-        public void UpdateBoard(Player player, int[] start, int[] end)
+        public void UpdateBoard(Player player, int[] startCoords, int[] endCoords)
         {
-            board[start[0], start[1]] = '#';
+            board[startCoords[0], startCoords[1]] = '#';
 
-            if (player.PlayerNum == 1) board[end[0], end[1]] = 'X';
-            else board[end[0], end[1]] = 'O';
+            if (player.PlayerNum == 1)
+                board[endCoords[0], endCoords[1]] = 'X';
+            else
+                board[endCoords[0], endCoords[1]] = 'O';
+
+            if (IsCapture(startCoords, endCoords))
+            {
+                int capturedRow = (startCoords[0] + endCoords[0]) / 2;
+                int capturedCol = (startCoords[1] + endCoords[1]) / 2;
+                board[capturedRow, capturedCol] = '#';
+                Console.WriteLine("Capture!\n");
+            }
 
             PrintColumnLabels();
 
@@ -59,6 +69,11 @@ namespace assignment3
                 }
                 Console.WriteLine();
             }
+        }
+
+        public static bool IsCapture(int[] startCoords, int[] endCoords)
+        {
+            return Math.Abs(startCoords[0] - endCoords[0]) == 2 && Math.Abs(startCoords[1] - endCoords[1]) == 2;
         }
 
         private void PrintColumnLabels()

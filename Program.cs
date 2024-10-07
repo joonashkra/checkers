@@ -1,21 +1,21 @@
 ﻿
+using System.Text.RegularExpressions;
+
 namespace assignment3
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Checkers");
+            Console.WriteLine("Checkers\n");
 
             Board board = new();
-
-            Player p1 = new();
-            Player p2 = new();
-
-            p1.PlayerNum = 1;
-            p2.PlayerNum = 2;
+            Player p1 = new(1);
+            Player p2 = new(2);
 
             board.InitBoard();
+
+            Console.WriteLine();
 
             int i = 0;
 
@@ -27,19 +27,19 @@ namespace assignment3
                 else player = p2;
 
                 Console.WriteLine("Player {0}: What piece do you want to move? (1-8, A-H): ", player.PlayerNum);
-                string? startPosition = Console.ReadLine();
+                string startPosition = AskUserInput();
 
                 Console.WriteLine();
 
-                Console.WriteLine("And where do you want to move it? (1-8, A-H): ");
-                string? endPosition = Console.ReadLine();
+                Console.WriteLine("Move piece from {0} to: ", startPosition);
+                string endPosition = AskUserInput();
 
-                if (startPosition == null || endPosition == null) return;
+                Console.WriteLine();
 
-                int[] start = ParsePosition(startPosition);
-                int[] end = ParsePosition(endPosition);
+                int[] startCoords = ParsePosition(startPosition);
+                int[] endCoords = ParsePosition(endPosition);
 
-                if (Player.Move(board, player, start, end) == -1) i++;
+                if (Player.Move(board, player, startCoords, endCoords) == -1) i++;
 
                 Console.WriteLine();
 
@@ -47,12 +47,25 @@ namespace assignment3
             }
         }
 
+        static string AskUserInput()
+        {
+            string? input;
+            string pattern = "^[1-8][A-H]$";
+            while (true)
+            {
+                input = Console.ReadLine();
+                if (input != null && Regex.IsMatch(input.ToUpper(), pattern)) break;
+                else Console.WriteLine("Invalid input. Please try again: ");
+            }
+            return input.ToUpper();
+        }
+
         static int[] ParsePosition(string position)
         {
-            char[] cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+            char[] cols = "ABCDEFGH".ToCharArray();
             int row = Convert.ToInt32(position[..1]) - 1;
             int col = Array.IndexOf(cols, position[1]);
-            return [row, col];
+            return new int[] { row, col };
         }
     }
 }
