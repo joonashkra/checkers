@@ -1,5 +1,6 @@
 ﻿
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace assignment3
 {
@@ -26,6 +27,11 @@ namespace assignment3
                 if (i % 2 == 0) player = p1;
                 else player = p2;
 
+                if(board.MustCapture(player.PlayerNum))
+                {
+                    Console.WriteLine("Player {0} has the opportunity to jump their opponent's checker.\nThe rules state that you must capture if possible.\n", player.PlayerNum);
+                }
+
                 Console.WriteLine("Player {0}: What piece do you want to move? (1-8, A-H): ", player.PlayerNum);
                 string startPosition = AskUserInput();
 
@@ -39,7 +45,7 @@ namespace assignment3
                 int[] startCoords = ParsePosition(startPosition);
                 int[] endCoords = ParsePosition(endPosition);
 
-                if (Player.Move(board, player, startCoords, endCoords) == -1) i++;
+                if (player.Move(board, startCoords, endCoords) == -1) i++;
 
                 Console.WriteLine();
 
@@ -67,5 +73,8 @@ namespace assignment3
             int col = Array.IndexOf(cols, position[1]);
             return new int[] { row, col };
         }
+
+
+
     }
 }
