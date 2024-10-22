@@ -1,4 +1,5 @@
 ﻿
+using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -27,10 +28,7 @@ namespace assignment3
                 if (i % 2 == 0) player = p1;
                 else player = p2;
 
-                if(board.MustCapture(player.PlayerNum))
-                {
-                    Console.WriteLine("Player {0} has the opportunity to jump their opponent's checker.\nThe rules state that you must capture if possible.\n", player.PlayerNum);
-                }
+                board.CheckCaptures(player.PlayerNum);
 
                 Console.WriteLine("Player {0}: What piece do you want to move? (1-8, A-H): ", player.PlayerNum);
                 string startPosition = AskUserInput();
@@ -49,6 +47,12 @@ namespace assignment3
 
                 Console.WriteLine();
 
+                if(board.IsVictory() != 0)
+                {
+                    Console.WriteLine("Player {0} wins! Game over.", board.IsVictory());
+                    break;
+                }
+
                 i++;
             }
         }
@@ -66,7 +70,7 @@ namespace assignment3
             return input.ToUpper();
         }
 
-        static int[] ParsePosition(string position)
+        public static int[] ParsePosition(string position)
         {
             char[] cols = "ABCDEFGH".ToCharArray();
             int row = Convert.ToInt32(position[..1]) - 1;
@@ -74,7 +78,12 @@ namespace assignment3
             return new int[] { row, col };
         }
 
-
-
+        public static string ParsePosition(int[] coords)
+        {
+            char[] cols = "ABCDEFGH".ToCharArray();
+            int row = coords[0] + 1;
+            char col = cols[coords[1]];
+            return $"{row}{col}";
+        }
     }
 }
