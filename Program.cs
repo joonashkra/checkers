@@ -11,24 +11,29 @@ namespace assignment3
         {
             Console.WriteLine("Checkers\n");
 
-            Board board = new();
+            CheckerBoard board = new();
+            Validator validator = new(board);
+            Printer printer = new(board);
+
             Player p1 = new(1);
             Player p2 = new(2);
 
             board.InitBoard();
 
-            Console.WriteLine();
-
             int i = 0;
 
             while (true)
             {
+                printer.PrintBoard();
+
+                Console.WriteLine();
+
                 Player player;
 
                 if (i % 2 == 0) player = p1;
                 else player = p2;
 
-                board.CheckCaptures(player.PlayerNum);
+                validator.CheckCaptures(player.PlayerNum);
 
                 Console.WriteLine("Player {0}: What piece do you want to move? (1-8, A-H): ", player.PlayerNum);
                 string startPosition = AskUserInput();
@@ -43,7 +48,10 @@ namespace assignment3
                 int[] startCoords = ParsePosition(startPosition);
                 int[] endCoords = ParsePosition(endPosition);
 
-                if (player.Move(board, startCoords, endCoords) == -1) i++;
+                bool legalMove = validator.ValidateMove(player.PlayerNum, startCoords, endCoords);
+
+                if (legalMove) player.Move(board, startCoords, endCoords);
+                else i++;
 
                 Console.WriteLine();
 
@@ -57,7 +65,7 @@ namespace assignment3
             }
         }
 
-        static string AskUserInput()
+        private static string AskUserInput()
         {
             string? input;
             string pattern = "^[1-8][A-H]$";

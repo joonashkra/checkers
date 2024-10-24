@@ -1,24 +1,44 @@
 ```mermaid
 classDiagram
+    Program <|-- CheckerBoard
+    Program <|-- Validator
+    Program <|-- Printer
     Program <|-- Player
-    Program <|-- Board
     class Program {
-        Board board;
+        CheckerBoard board;
+        Validator validator;
+        Printer printer;
         Player p1;
         Player p2;
         AskUserInput()
         ParsePosition()
     }
-    class Player {
-      int playerNumber;
-      bool victory;
-      Move()
-      ValidateMove()
-    }
-    class Board {
+    class CheckerBoard {
       char[,] board = new char [8,8];
+      Board()
       InitBoard()
       UpdateBoard()
-      IsCapture()
+        GetPawn()
+        SetPawn()
+        HandleCaptures()
+        HandlePromotions()
+        GetWinner()
+    }
+    class Printer {
+        CheckerBoard board;
+        PrintBoard()
+        PrintColumnLabels()
+        PrintRowLabels()
+    }
+    class Validator {
+        CheckerBoard board;
+        ValidateMove()
+        IsOutOfBounds()
+        CheckCaptures()
+    }
+    class Player {
+      int playerNumber;
+      PlayernNum()
+      Move()
     }
 ```

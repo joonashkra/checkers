@@ -3,85 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace assignment3
 {
-    class Board
+    class Validator
     {
-        private readonly char[,] board = new char[8, 8];
-        public char[,] BoardArray
+        private readonly CheckerBoard checkerBoard;
+
+        public Validator(CheckerBoard board)
         {
-            get { return board; }
-        }
-
-        public void InitBoard()
-        {
-            PrintColumnLabels();
-
-            for (int i = 0; i < 8; i++)
-            {
-                PrintRowLabels(i);
-
-                for (int j = 0; j < 8; j++)
-                {
-                    board[i, j] = '#';
-
-                    if (i > 4)
-                    {
-                        if ((i + j) % 2 == 1) board[i, j] = 'X';
-                    }
-                    else if (i < 3)
-                    {
-                        if ((i + j) % 2 == 1) board[i, j] = 'O';
-                    }
-
-                    Console.Write(" {0}", board[i, j]);
-                }
-                Console.WriteLine();
-            }
-        }
-
-        public void UpdateBoard(int playerNum, int[] startCoords, int[] endCoords)
-        {
-            char startChar = board[startCoords[0], startCoords[1]];
-
-            if (playerNum == 1)
-                board[endCoords[0], endCoords[1]] = 'X';
-            else
-                board[endCoords[0], endCoords[1]] = 'O';
-
-            if (IsCaptureAttempt(playerNum, startCoords, endCoords))
-            {
-                int capturedRow = (startCoords[0] + endCoords[0]) / 2;
-                int capturedCol = (startCoords[1] + endCoords[1]) / 2;
-                board[capturedRow, capturedCol] = '#';
-            }
-
-            if (startChar == 'K') board[endCoords[0], endCoords[1]] = 'K';
-            if (startChar == 'Q') board[endCoords[0], endCoords[1]] = 'Q';
-
-            board[startCoords[0], startCoords[1]] = '#';
-
-            PromotePawn();
-
-            PrintColumnLabels();
-
-            for (int i = 0; i < 8; i++)
-            {
-                PrintRowLabels(i);
-                for (int j = 0; j < 8; j++)
-                {
-                    Console.Write(" {0}", board[i, j]);
-                }
-                Console.WriteLine();
-            }
+            this.checkerBoard = board;
         }
 
         public bool ValidateMove(int playerNum, int[] startCoords, int[] endCoords)
         {
-            char startChar = board[startCoords[0], startCoords[1]];
-            char endChar = board[endCoords[0], endCoords[1]];
+            char startChar = checkerBoard.GetPawn(startCoords);
+            char endChar = checkerBoard.GetPawn(endCoords);
+
+            bool captureAttempt = checkerBoard.HandleCaptures(playerNum, startCoords, endCoords);
+            bool possibleCaptures = CheckCaptures(playerNum);
 
             if (IsOutOfBounds(endCoords))
                 return false;
@@ -118,7 +58,7 @@ namespace assignment3
                 }
                 else if (rowsMoved == 2 && colsMoved == 2)
                 {
-                    if (!IsCaptureAttempt(playerNum, startCoords, endCoords))
+                    if (!captureAttempt)
                     {
                         Console.WriteLine("You can't capture here.");
                         return false;
@@ -139,7 +79,7 @@ namespace assignment3
                 }
                 else if (rowsMoved == 2 && colsMoved == 2)
                 {
-                    if (!IsCaptureAttempt(playerNum, startCoords, endCoords))
+                    if (!captureAttempt)
                     {
                         Console.WriteLine("You can't capture here.");
                         return false;
@@ -152,7 +92,7 @@ namespace assignment3
                 }
             }
 
-            if (CheckCaptures(playerNum) && !IsCaptureAttempt(playerNum, startCoords, endCoords))
+            if (possibleCaptures && !captureAttempt)
             {
                 return false;
             }
@@ -160,30 +100,15 @@ namespace assignment3
             return true;
         }
 
-        private bool IsCaptureAttempt(int playerNum, int[] startCoords, int[] endCoords)
+        public static bool IsOutOfBounds(int[] coords)
         {
-            char opponentPawn = playerNum == 1 ? 'O' : 'X';
-            char promotedOpponentPawn = playerNum == 1 ? 'Q' : 'K';
-
-            char[] opponentPawns = { opponentPawn, promotedOpponentPawn };
-
-            if (Math.Abs(startCoords[0] - endCoords[0]) != 2 || Math.Abs(startCoords[1] - endCoords[1]) != 2)
-                return false;
-
-            int capturedRow = (startCoords[0] + endCoords[0]) / 2;
-            int capturedCol = (startCoords[1] + endCoords[1]) / 2;
-
-            if (IsOutOfBounds(new int[] { capturedRow, capturedCol }))
-                return false;
-
-            if (!opponentPawns.Contains(board[capturedRow, capturedCol]))
-                return false;
-
-            return true;
+            return coords[0] < 0 || coords[0] >= 8 || coords[1] < 0 || coords[1] >= 8;
         }
 
         public bool CheckCaptures(int playerNum)
         {
+            char[,] board = checkerBoard.Board;
+
             char opponentPawn = playerNum == 1 ? 'O' : 'X';
             char playerPawn = playerNum == 1 ? 'X' : 'O';
             char promotedPlayerPawn = playerNum == 1 ? 'K' : 'Q';
@@ -196,11 +121,13 @@ namespace assignment3
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    if (playerPawns.Contains(board[i, j]))
+                    char currentPawn = board[i, j];
+
+                    if (playerPawns.Contains(currentPawn))
                     {
                         bool legalCapture = false;
 
-                        if (board[i, j] == playerPawn)
+                        if (currentPawn == playerPawn)
                         {
                             if (playerNum == 1)
                             {
@@ -213,7 +140,7 @@ namespace assignment3
                                               (i + 2 < 8 && j - 2 >= 0 && opponentPawns.Contains(board[i + 1, j - 1]) && board[i + 2, j - 2] == '#');
                             }
                         }
-                        else if (board[i, j] == promotedPlayerPawn)
+                        else if (currentPawn == promotedPlayerPawn)
                         {
                             legalCapture = (i + 2 < 8 && j + 2 < 8 && opponentPawns.Contains(board[i + 1, j + 1]) && board[i + 2, j + 2] == '#') ||
                                           (i + 2 < 8 && j - 2 >= 0 && opponentPawns.Contains(board[i + 1, j - 1]) && board[i + 2, j - 2] == '#') ||
@@ -233,62 +160,6 @@ namespace assignment3
             }
 
             return false;
-        }
-
-        private static bool IsOutOfBounds(int[] coords)
-        {
-            return coords[0] < 0 || coords[0] >= 8 || coords[1] < 0 || coords[1] >= 8;
-        }
-
-        public int? GetWinner()
-        {
-            List<char> pawns = new();
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    pawns.Add(board[i, j]);
-                }
-            }
-
-            if (pawns.Contains('X') && !pawns.Contains('O'))
-                return 1;
-            else if (pawns.Contains('O') && !pawns.Contains('X'))
-                return 2;
-            else
-                return null;
-        }
-
-        public void PromotePawn()
-        {
-            for (int i = 0; i < 8; i++)
-            {
-                if (board[0, i] == 'X')
-                {
-                    board[0, i] = 'K';
-                    Console.WriteLine("Player 1 pawn promoted to king!");
-                }
-                if (board[7, i] == 'O')
-                {
-                    board[7, i] = 'Q';
-                    Console.WriteLine("Player 2 pawn promoted to queen!");
-                }
-            }
-        }
-
-        private static void PrintColumnLabels()
-        {
-            Console.Write("   ");
-            for (char c = 'A'; c <= 'H'; c++)
-            {
-                Console.Write(" {0}", c);
-            }
-            Console.WriteLine("\n   -----------------");
-        }
-
-        private static void PrintRowLabels(int i)
-        {
-            Console.Write("{0} |", i + 1);
         }
     }
 }

@@ -22,16 +22,10 @@ namespace assignment3
             get { return playerNum; }
         }
 
-        public int Move(Board board, int[] startCoords, int[] endCoords)
+        public int Move(CheckerBoard board, int[] startCoords, int[] endCoords)
         {
-            bool legalMove = board.ValidateMove(playerNum, startCoords, endCoords);
-
-            if (!legalMove) return -1;
-
             board.UpdateBoard(playerNum, startCoords, endCoords);
             return 0;
         }
-
-        
     }
 }
