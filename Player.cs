@@ -10,7 +10,7 @@ namespace assignment3
 {
     class Player
     {
-        private int playerNum;
+        private readonly int playerNum;
 
         public Player(int playerNum)
         {
@@ -24,9 +24,9 @@ namespace assignment3
 
         public int Move(Board board, int[] startCoords, int[] endCoords)
         {
-            bool validMove = board.ValidateMove(playerNum, startCoords, endCoords);
+            bool legalMove = board.ValidateMove(playerNum, startCoords, endCoords);
 
-            if (!validMove) return -1;
+            if (!legalMove) return -1;
 
             board.UpdateBoard(playerNum, startCoords, endCoords);
             return 0;

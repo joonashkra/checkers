@@ -46,14 +46,12 @@ namespace assignment3
         {
             char startChar = board[startCoords[0], startCoords[1]];
 
-            board[7, 0] = 'O';
-
             if (playerNum == 1)
                 board[endCoords[0], endCoords[1]] = 'X';
             else
                 board[endCoords[0], endCoords[1]] = 'O';
 
-            if (IsCapture(playerNum, startCoords, endCoords))
+            if (IsCaptureAttempt(playerNum, startCoords, endCoords))
             {
                 int capturedRow = (startCoords[0] + endCoords[0]) / 2;
                 int capturedCol = (startCoords[1] + endCoords[1]) / 2;
@@ -120,7 +118,7 @@ namespace assignment3
                 }
                 else if (rowsMoved == 2 && colsMoved == 2)
                 {
-                    if (!IsCapture(playerNum, startCoords, endCoords))
+                    if (!IsCaptureAttempt(playerNum, startCoords, endCoords))
                     {
                         Console.WriteLine("You can't capture here.");
                         return false;
@@ -141,7 +139,7 @@ namespace assignment3
                 }
                 else if (rowsMoved == 2 && colsMoved == 2)
                 {
-                    if (!IsCapture(playerNum, startCoords, endCoords))
+                    if (!IsCaptureAttempt(playerNum, startCoords, endCoords))
                     {
                         Console.WriteLine("You can't capture here.");
                         return false;
@@ -154,7 +152,7 @@ namespace assignment3
                 }
             }
 
-            if (CheckCaptures(playerNum) && !IsCapture(playerNum, startCoords, endCoords))
+            if (CheckCaptures(playerNum) && !IsCaptureAttempt(playerNum, startCoords, endCoords))
             {
                 return false;
             }
@@ -162,7 +160,7 @@ namespace assignment3
             return true;
         }
 
-        private bool IsCapture(int playerNum, int[] startCoords, int[] endCoords)
+        private bool IsCaptureAttempt(int playerNum, int[] startCoords, int[] endCoords)
         {
             char opponentPawn = playerNum == 1 ? 'O' : 'X';
             char promotedOpponentPawn = playerNum == 1 ? 'Q' : 'K';
@@ -175,7 +173,7 @@ namespace assignment3
             int capturedRow = (startCoords[0] + endCoords[0]) / 2;
             int capturedCol = (startCoords[1] + endCoords[1]) / 2;
 
-            if (capturedRow < 0 || capturedRow >= 8 || capturedCol < 0 || capturedCol >= 8)
+            if (IsOutOfBounds(new int[] { capturedRow, capturedCol }))
                 return false;
 
             if (!opponentPawns.Contains(board[capturedRow, capturedCol]))
@@ -204,8 +202,16 @@ namespace assignment3
 
                         if (board[i, j] == playerPawn)
                         {
-                            legalCapture = (i + 2 < 8 && j + 2 < 8 && opponentPawns.Contains(board[i + 1, j + 1]) && board[i + 2, j + 2] == '#') ||
-                                          (i + 2 < 8 && j - 2 >= 0 && opponentPawns.Contains(board[i + 1, j - 1]) && board[i + 2, j - 2] == '#');
+                            if (playerNum == 1)
+                            {
+                                legalCapture = (i - 2 >= 0 && j + 2 < 8 && opponentPawns.Contains(board[i - 1, j + 1]) && board[i - 2, j + 2] == '#') ||
+                                              (i - 2 >= 0 && j - 2 >= 0 && opponentPawns.Contains(board[i - 1, j - 1]) && board[i - 2, j - 2] == '#');
+                            }
+                            else
+                            {
+                                legalCapture = (i + 2 < 8 && j + 2 < 8 && opponentPawns.Contains(board[i + 1, j + 1]) && board[i + 2, j + 2] == '#') ||
+                                              (i + 2 < 8 && j - 2 >= 0 && opponentPawns.Contains(board[i + 1, j - 1]) && board[i + 2, j - 2] == '#');
+                            }
                         }
                         else if (board[i, j] == promotedPlayerPawn)
                         {
@@ -234,7 +240,7 @@ namespace assignment3
             return coords[0] < 0 || coords[0] >= 8 || coords[1] < 0 || coords[1] >= 8;
         }
 
-        public int IsVictory()
+        public int? GetWinner()
         {
             List<char> pawns = new();
             for (int i = 0; i < board.GetLength(0); i++)
@@ -250,7 +256,7 @@ namespace assignment3
             else if (pawns.Contains('O') && !pawns.Contains('X'))
                 return 2;
             else
-                return 0;
+                return null;
         }
 
         public void PromotePawn()
@@ -269,31 +275,6 @@ namespace assignment3
                 }
             }
         }
-
-        public int TestIsVictory()
-        {
-            int xCount = 0;
-            int oCount = 0;
-
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int j = 0; j < board.GetLength(1); j++)
-                {
-                    if (board[i, j] == 'X')
-                        xCount++;
-                    else if (board[i, j] == 'O')
-                        oCount++;
-                }
-            }
-
-            if (oCount < 12)
-                return 1;
-            else if (xCount < 12)
-                return 2;
-            else
-                return 0;
-        }
-
 
         private static void PrintColumnLabels()
         {

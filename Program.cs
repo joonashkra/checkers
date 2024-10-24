@@ -47,9 +47,9 @@ namespace assignment3
 
                 Console.WriteLine();
 
-                if(board.IsVictory() != 0)
+                if(board.GetWinner() != null)
                 {
-                    Console.WriteLine("Player {0} wins! Game over.", board.IsVictory());
+                    Console.WriteLine("Player {0} wins! Game over.", board.GetWinner());
                     break;
                 }
 
