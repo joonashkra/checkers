@@ -1,12 +1,17 @@
 ```mermaid
+
 classDiagram
-    Program <|-- CheckerBoard
-    Program <|-- Validator
-    Program <|-- Printer
-    Program <|-- Player
+    Program ..> CheckerBoard
+    Program ..> Validator
+    Validator ..> CheckerBoard
+    Printer ..> CheckerBoard
+    Program ..> Printer
+    Program ..> Player
+
     class Program {
         CheckerBoard board;
         Validator validator;
+
         Printer printer;
         Player p1;
         Player p2;
